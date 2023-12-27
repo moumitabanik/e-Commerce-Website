@@ -5,22 +5,21 @@
 <section class="section-content padding-y bg">
     <div class="container">
     
-    <!-- ============================ COMPONENT 1 ================================= -->
     <div class="card">
         <div class="row no-gutters">
             <aside class="col-md-6">
     <article class="gallery-wrap"> 
     <div class="img-big-wrap">
       <div> <a href="#"><img src="/media/{{product.product_images.first.image}}"></a></div>
-    </div> <!-- slider-product.// -->
+    </div>
     <div class="thumbs-wrap">
       {% for image in product.product_images.all %}
       <a href="#" class="item-thumb"> <img src="/media/{{image.image}}"></a>
       
       {% endfor %}
 
-    </div> <!-- slider-nav.// -->
-    </article> <!-- gallery-wrap .end// -->
+    </div>
+    </article>
             </aside>
             <main class="col-md-6 border-left">
     <article class="content-body">
@@ -42,7 +41,7 @@
         </ul>
         <small class="label-rating text-muted">132 reviews</small>
         <small class="label-rating text-success"> <i class="fa fa-clipboard-check"></i> 154 orders </small>
-    </div> <!-- rating-wrap.// -->
+    </div>
     
     <div class="mb-3"> 
         <var class="price h4">
@@ -53,7 +52,7 @@
           {% endif %}
           .00</var> 
         <span class="text-muted">/per kg</span> 
-    </div> <!-- price-detail-wrap .// -->
+    </div>
     
     <p>{{product.product_desription}}</p>
     
@@ -82,7 +81,7 @@
                     <button class="btn btn-light" type="button" id="button-minus"> − </button>
                   </div>
                 </div>
-            </div> <!-- col.// -->
+            </div>
             {% if product.size_variant.count %}
             <div class="form-group col-md">
                     <label>Select size</label>
@@ -99,23 +98,21 @@
                     </div>
             </div>
             {% endif %}
-            <!-- col.// -->
-        </div> <!-- row.// -->
+        </div>
     
         <a href="#" class="btn  btn-primary"> Buy now </a>
         <a href="{% url 'add-to-cart' product.uid %}?varient={{selected_size}}" class="btn  btn-outline-primary"> <span class="text">Add to cart</span> <i class="fas fa-shopping-cart"></i>  </a>
-    </article> <!-- product-info-aside .// -->
-            </main> <!-- col.// -->
-        </div> <!-- row.// -->
-    </div> <!-- card.// -->
-    <!-- ============================ COMPONENT 1 END .// ================================= -->
+    </article>
+            </main>
+        </div>
+    </div>
     
 
     </div>
-    </section>
-    <script>
-      function get_correct_price(size){
-        window.location.href  = window.location.pathname + `?size=${size}`
-      }
-    </script>
+</section>
+<script>
+  function get_correct_price(size){
+    window.location.href  = window.location.pathname + `?size=${size}`
+  }
+</script>
 {% endblock %}

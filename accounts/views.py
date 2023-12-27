@@ -65,8 +65,6 @@ def register_page(request):
     return render(request ,'accounts/register.html')
 
 
-
-
 def activate_email(request , email_token):
     try:
         user = Profile.objects.get(email_token= email_token)
@@ -75,3 +73,7 @@ def activate_email(request , email_token):
         return redirect('/')
     except Exception as e:
         return HttpResponse('Invalid Email token')
+    
+
+def cart(request):
+    return render(request ,'accounts/cart.html')
