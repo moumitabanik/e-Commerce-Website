@@ -1,10 +1,12 @@
 from django.urls import path
-from accounts.views import login_page,register_page , activate_email, cart
+from accounts.views import login_page,register_page , activate_email, cart, remove_cart, update_cart_item
 from products.views import add_to_cart
 urlpatterns = [
    path('login/' , login_page , name="login" ),
    path('register/' , register_page , name="register"),
+   path('activate/<email_token>/' , activate_email , name="activate_email"),
    path('cart/', cart , name="cart"),
    path('add-to-cart/<uid>/', add_to_cart , name="add-to-cart"),
-   path('activate/<email_token>/' , activate_email , name="activate_email"),
+   path('update_cart_item/<cart_item_uid>/', update_cart_item, name='update_cart_item'),
+   path('remove_cart/<cart_item_uid>/', remove_cart , name="remove_cart"),
 ]

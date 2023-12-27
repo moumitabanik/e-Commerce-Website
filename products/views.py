@@ -62,4 +62,4 @@ def add_to_cart(request, uid):
         cart_item.save()
 
     # Redirect to the product detail page or any other desired page
-    return redirect('cart')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

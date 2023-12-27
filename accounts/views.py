@@ -1,12 +1,12 @@
 from cmath import log
 from tkinter import E
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate , login , logout
 from django.http import HttpResponseRedirect,HttpResponse
 # Create your views here.
-from .models import Profile
+from .models import Cart, CartItems, Profile
 
 
 def login_page(request):
@@ -75,5 +75,45 @@ def activate_email(request , email_token):
         return HttpResponse('Invalid Email token')
     
 
+def remove_cart(request, cart_item_uid):
+    try:
+        cart_item = CartItems.objects.get(uid = cart_item_uid)
+        cart_item.delete()
+    except Exception as e:
+        print(e)
+    
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def update_cart_item(request, cart_item_uid):
+    # Assuming you receive the new quantity from a form
+    print(request.POST)
+    new_quantity = request.POST.get('quantity')
+
+    # Retrieve the cart item
+    try:
+        cart_item = CartItems.objects.get(uid = cart_item_uid)
+
+        # Update the quantity if a valid new quantity is provided
+        if new_quantity and new_quantity.isdigit():
+            cart_item.quantity = int(new_quantity)
+            cart_item.save()
+    except Exception as e:
+        print(e)
+
+    # Redirect back to the cart page or wherever is appropriate
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 def cart(request):
-    return render(request ,'accounts/cart.html')
+    cart_items = CartItems.objects.all()
+    quantity_options = range(1, 11)
+
+    for item in cart_items:
+        # Assuming item.product is a ForeignKey relationship to the Product model
+        product_name = item.product.product_name if item.product else None
+        print(f"Product Name: {product_name},Quantity: {item.quantity}")
+
+    total = cart_items[0].cart.get_cart_total() if cart_items else None
+    # print(f"Total: {total}")
+
+    context = {'cart': cart_items, 'total': total, 'quantity_options': quantity_options}
+    return render(request, 'accounts/cart.html', context)
