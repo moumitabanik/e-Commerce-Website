@@ -108,12 +108,19 @@ def cart(request):
     quantity_options = range(1, 11)
 
     for item in cart_items:
-        # Assuming item.product is a ForeignKey relationship to the Product model
         product_name = item.product.product_name if item.product else None
-        print(f"Product Name: {product_name},Quantity: {item.quantity}")
+        product_images = item.product.product_images.all() if item.product else None
+
+        print(f"Product Name: {product_name}, Quantity: {item.quantity}")
+
+        for image in product_images:
+            print(f"Image: {image.image.url}")
 
     total = cart_items[0].cart.get_cart_total() if cart_items else None
-    # print(f"Total: {total}")
 
-    context = {'cart': cart_items, 'total': total, 'quantity_options': quantity_options}
+    # Note: Adjust this part based on how you want to handle the total
+    total_value = total if total is not None else 0
+
+    context = {'cart': cart_items, 'total': total_value, 'quantity_options': quantity_options}
     return render(request, 'accounts/cart.html', context)
+

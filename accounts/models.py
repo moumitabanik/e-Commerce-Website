@@ -1,4 +1,5 @@
 
+from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User
 from base.models import BaseModel
@@ -23,16 +24,26 @@ class Cart(BaseModel):
 
     def get_cart_total(self):
         cart_items = self.cart_items.all()
-        price=[]
+        total_price = Decimal('0.00')
+
         for cart_item in cart_items:
-            price.append(cart_item.product.price)
+            product_price = Decimal(str(cart_item.product.price))
+            total_price += product_price
+
             if cart_item.color_variant:
-                color_variant_price = cart_item.color_variant.price
-                price.append(color_variant_price)
+                color_variant_price = Decimal(str(cart_item.color_variant.price))
+                total_price += color_variant_price
+
             if cart_item.size_variant:
-                size_variant_price =  cart_item.size_variant.price
-                price.append(size_variant_price)
-        return sum(price)
+                size_variant_price = Decimal(str(cart_item.size_variant.price))
+                total_price += size_variant_price
+
+            if hasattr(cart_item, 'quantity'):
+                quantity = int(cart_item.quantity)  # Assuming quantity is an integer
+                if quantity > 1:
+                    total_price = product_price * quantity
+
+        return total_price
 
 class CartItems(BaseModel):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items')
