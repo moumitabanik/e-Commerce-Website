@@ -21,29 +21,6 @@ def get_product(request , slug):
 
     except Exception as e:
         print(e)
-
-# def add_to_cart(request, uid):
-#     variant = request.GET.get('variant')
-#     product = get_object_or_404(Product, uid=uid)  # Assuming Product model has a uid field
-#     user = request.user
-#     cart, _ = Cart.objects.get_or_create(user=user, is_paid=False)
-
-#     # Check if the product is already in the cart
-#     cart_item, created = cart.cart_items.get_or_create(product=product)
-
-#     if not created:
-#         # If the product already exists in the cart, update the quantity
-#         cart_item.quantity += 1
-#         cart_item.save()
-#     else:
-#         # If the product is not in the cart, create a new cart item
-#         if variant:
-#             size_variant = SizeVariant.objects.get(size_name=variant)
-#             print(size_variant)
-#             CartItems.objects.create(cart=cart, product=product, size_variant=size_variant, quantity=1)
-
-#     # Redirect to the product detail page or any other desired page
-#     return redirect('cart')
         
 def add_to_cart(request, uid):
     variant = request.GET.get('variant')
@@ -54,7 +31,6 @@ def add_to_cart(request, uid):
     # Check if the product is already in the cart
     cart_item = CartItems.objects.create(cart=cart,product=product)
 
-    
     if variant:
         variant = request.GET.get('variant')
         size_variant = SizeVariant.objects.get(size_name=variant)

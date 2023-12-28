@@ -117,8 +117,7 @@ def cart(request):
             print(f"Image: {image.image.url}")
 
     total = cart_items[0].cart.get_cart_total() if cart_items else None
-
-    # Note: Adjust this part based on how you want to handle the total
+    
     total_value = total if total is not None else 0
 
     context = {'cart': cart_items, 'total': total_value, 'quantity_options': quantity_options}

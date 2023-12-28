@@ -25,18 +25,12 @@ class Cart(BaseModel):
     def get_cart_total(self):
         cart_items = self.cart_items.all()
         total_price = Decimal('0.00')
-
+        print(cart_items)
         for cart_item in cart_items:
-            product_price = Decimal(str(cart_item.product.price))
+            product_price = Decimal(str(cart_item.size_variant.price))
+            print(product_price)
             total_price += product_price
-
-            if cart_item.color_variant:
-                color_variant_price = Decimal(str(cart_item.color_variant.price))
-                total_price += color_variant_price
-
-            if cart_item.size_variant:
-                size_variant_price = Decimal(str(cart_item.size_variant.price))
-                total_price += size_variant_price
+            print(total_price)
 
             if hasattr(cart_item, 'quantity'):
                 quantity = int(cart_item.quantity)  # Assuming quantity is an integer
@@ -44,6 +38,7 @@ class Cart(BaseModel):
                     total_price = product_price * quantity
 
         return total_price
+
 
 class CartItems(BaseModel):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items')
@@ -53,14 +48,14 @@ class CartItems(BaseModel):
     quantity = models.PositiveIntegerField(default=1)
 
     def get_product_price(self):
-        price = [self.product.price]
-        if self.color_variant:
-            color_variant_price = self.color_variant.price
-            price.append(color_variant_price)
+        price = []
+
         if self.size_variant:
-            size_variant_price =  self.size_variant.price
+            size_variant_price = self.size_variant.price
             price.append(size_variant_price)
-        print(price)
+        else:
+            price.append(self.product.price)
+
         return sum(price)
 
 @receiver(post_save , sender = User)
