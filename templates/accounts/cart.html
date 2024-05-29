@@ -29,13 +29,7 @@
                                         <figcaption class="info">
                                             <a href="#" class="title text-dark">{{ item.product.product_name }}</a>
                                             <p class="text-muted small">
-                                                {% if item.size_variant %}
-                                                    Size: {{ item.size_variant.size }},
-                                                {% endif %}
-                                                {% if item.color_variant %}
-                                                    Color: {{ item.color_variant.color }},
-                                                {% endif %}
-                                                Brand: {{ item.product.brand }}
+                                                Description:{{ item.product.product_desription }}
                                             </p>
                                         </figcaption>
                                     </figure>

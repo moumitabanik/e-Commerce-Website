@@ -7,7 +7,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 import uuid
 from base.emails import send_account_activation_email
-from products.models import Product, SizeVariant, ColorVariant
+from products.models import Product
 
 class Profile(BaseModel):
     user = models.OneToOneField(User , on_delete=models.CASCADE , related_name="profile")
@@ -27,7 +27,7 @@ class Cart(BaseModel):
         total_price = Decimal('0.00')
         print(cart_items)
         for cart_item in cart_items:
-            product_price = Decimal(str(cart_item.size_variant.price))
+            product_price = Decimal(str(cart_item.product.price))
             print(product_price)
             total_price += product_price
             print(total_price)
@@ -43,16 +43,14 @@ class Cart(BaseModel):
 class CartItems(BaseModel):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='cart_items')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
-    color_variant = models.ForeignKey(ColorVariant, on_delete=models.SET_NULL, null=True, blank=True)
-    size_variant = models.ForeignKey(SizeVariant, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.PositiveIntegerField(default=1)
 
     def get_product_price(self):
         price = []
 
-        if self.size_variant:
-            size_variant_price = self.size_variant.price
-            price.append(size_variant_price)
+        if self.product:
+            product_price = self.product.price
+            price.append(product_price)
         else:
             price.append(self.product.price)
 
@@ -70,3 +68,8 @@ def  send_email_token(sender , instance , created , **kwargs):
     except Exception as e:
         print(e)
 
+class Review(models.Model):
+    user_profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    review = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

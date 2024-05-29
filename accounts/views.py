@@ -3,10 +3,12 @@ from tkinter import E
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate , login , logout
+from django.contrib.auth import authenticate , login
 from django.http import HttpResponseRedirect,HttpResponse
+from django.contrib.auth.decorators import login_required
 # Create your views here.
-from .models import Cart, CartItems, Profile
+from .models import Cart, CartItems, Profile, Review
+from .forms import ReviewForm
 
 
 def login_page(request):
@@ -19,25 +21,16 @@ def login_page(request):
         if not user_obj.exists():
             messages.warning(request, 'Account not found.')
             return HttpResponseRedirect(request.path_info)
-
-
         if not user_obj[0].profile.is_email_verified:
             messages.warning(request, 'Your account is not verified.')
             return HttpResponseRedirect(request.path_info)
-
         user_obj = authenticate(username = email , password= password)
         if user_obj:
             login(request , user_obj)
             return redirect('/')
-
-        
-
         messages.warning(request, 'Invalid credentials')
         return HttpResponseRedirect(request.path_info)
-
-
     return render(request ,'accounts/login.html')
-
 
 def register_page(request):
 
@@ -64,7 +57,6 @@ def register_page(request):
 
     return render(request ,'accounts/register.html')
 
-
 def activate_email(request , email_token):
     try:
         user = Profile.objects.get(email_token= email_token)
@@ -73,8 +65,8 @@ def activate_email(request , email_token):
         return redirect('/')
     except Exception as e:
         return HttpResponse('Invalid Email token')
-    
 
+@login_required
 def remove_cart(request, cart_item_uid):
     try:
         cart_item = CartItems.objects.get(uid = cart_item_uid)
@@ -84,6 +76,7 @@ def remove_cart(request, cart_item_uid):
     
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+@login_required
 def update_cart_item(request, cart_item_uid):
     # Assuming you receive the new quantity from a form
     print(request.POST)
@@ -103,23 +96,34 @@ def update_cart_item(request, cart_item_uid):
     # Redirect back to the cart page or wherever is appropriate
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+@login_required
 def cart(request):
     cart_items = CartItems.objects.all()
     quantity_options = range(1, 11)
 
     for item in cart_items:
         product_name = item.product.product_name if item.product else None
+        product_desription = item.product.product_desription if item.product else None
         product_images = item.product.product_images.all() if item.product else None
-
-        print(f"Product Name: {product_name}, Quantity: {item.quantity}")
-
-        for image in product_images:
-            print(f"Image: {image.image.url}")
 
     total = cart_items[0].cart.get_cart_total() if cart_items else None
     
     total_value = total if total is not None else 0
-
+   
     context = {'cart': cart_items, 'total': total_value, 'quantity_options': quantity_options}
     return render(request, 'accounts/cart.html', context)
 
+@login_required
+def add_review(request, uid):
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.user_profile = Profile.objects.get(user=request.user)
+            review.product_id = uid
+            review.save()
+            messages.warning(request, 'Thanks for your feedback.')
+            return HttpResponseRedirect(request.path_info)
+    else:
+        form = ReviewForm()
+    return render(request, 'accounts/review.html', {'form': form})

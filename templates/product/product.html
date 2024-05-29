@@ -39,8 +39,8 @@
                 <i class="fa fa-star"></i> 
             </li>
         </ul>
-        <small class="label-rating text-muted">132 reviews</small>
-        <small class="label-rating text-success"> <i class="fa fa-clipboard-check"></i> 154 orders </small>
+        <small class="label-rating text-muted">{{product.get_review_count}} reviews</small>
+        <a href="{% url 'add_review' product.uid %}" class="label-rating text-success mouse-pointer"> <i class="fa fa-clipboard-check"></i> Write a review</a>
     </div>
     
     <div class="mb-3"> 
@@ -51,58 +51,49 @@
           ${{product.price}}
           {% endif %}
           .00</var> 
-        <span class="text-muted">/per kg</span> 
+        <span class="text-muted">/per pc</span> 
     </div>
     
     <p>{{product.product_desription}}</p>
     
-    
-    <dl class="row">
-      <dt class="col-sm-3">Model#</dt>
-      <dd class="col-sm-9">Odsy-1000</dd>
-    
-      <dt class="col-sm-3">Color</dt>
-      <dd class="col-sm-9">Brown</dd>
-    
-      <dt class="col-sm-3">Delivery</dt>
-      <dd class="col-sm-9">Russia, USA, and Europe </dd>
-    </dl>
-    
     <hr>
         <div class="form-row">
-            <div class="form-group col-md flex-grow-0">
-                <label>Quantity</label>
-                <div class="input-group mb-3 input-spinner">
-                  <div class="input-group-prepend">
-                    <button class="btn btn-light" type="button" id="button-plus"> + </button>
-                  </div>
-                  <input type="text" class="form-control" value="1">
-                  <div class="input-group-append">
-                    <button class="btn btn-light" type="button" id="button-minus"> − </button>
-                  </div>
-                </div>
-            </div>
-            {% if product.size_variant.count %}
-            <div class="form-group col-md">
-                    <label>Select size</label>
-                    <div class="mt-1">
-                      {% for size in product.size_variant.all %}
-                      
-                        <label class="custom-control custom-radio custom-control-inline">
-                          <input type="radio" onchange="get_correct_price('{{size.size_name}}')" name="select_size" {% if selected_size == size.size_name %} checked="" {% endif %} class="custom-control-input">
-                          <div class="custom-control-label">{{size.size_name}}</div>
-                        </label>
+          <div class="form-group col-md flex-grow-0">
+              <label>Quantity</label>
+              <select id="quantitySelect" name="quantity" class="form-control">
+                  {% for quantity_option in quantity_options %}
+                      <option value="{{ quantity_option }}">
+                          {{ quantity_option }}
+                      </option>
+                  {% endfor %}
+              </select>
+          </div>
+          </div>
     
-                      {% endfor %}
-    
+          <a id="buyNowLink" href="{% url 'buy-now' product.uid %}?quantity=1" class="btn btn-primary">Buy now</a>
+          <a id="addToCartLink" href="{% url 'add-to-cart' product.uid %}?quantity=1" class="btn btn-outline-primary">
+              <span class="text">Add to cart</span> <i class="fas fa-shopping-cart"></i>
+          </a>
+          <h2 class="title" style="margin-top: 20px;">Reviews</h2>
+          <div>
+            {% for review in reviews %}
+                <div class="review-block">
+                    <div class="review-header">
+                        <i class="fa fa-user"></i> {{ review.user_profile.user.username }}
                     </div>
-            </div>
-            {% endif %}
-        </div>
-    
-        <a href="#" class="btn  btn-primary"> Buy now </a>
-        <a href="{% url 'add-to-cart' product.uid %}?variant={{selected_size}}" class="btn  btn-outline-primary"> <span class="text">Add to cart</span> <i class="fas fa-shopping-cart"></i>  </a>
-    </article>
+                    <div>
+                        {{ review.review }}
+                    </div>
+                    <div class="review-date">
+                        Reviewed on {{ review.created_at|date:"Y-m-d H:i" }}
+                    </div>
+                </div>
+            {% endfor %}
+          </div>
+        </article>
+
+        
+
             </main>
         </div>
     </div>
@@ -111,8 +102,13 @@
     </div>
 </section>
 <script>
-  function get_correct_price(size){
-    window.location.href  = window.location.pathname + `?size=${size}`
-  }
+  document.getElementById("quantitySelect").addEventListener("change", function() {
+      var selectedQuantity = this.value;
+      var buyNowLink = document.getElementById("buyNowLink");
+      var addToCartLink = document.getElementById("addToCartLink");
+
+      buyNowLink.href = "{% url 'buy-now' product.uid %}?quantity=" + selectedQuantity;
+      addToCartLink.href = "{% url 'add-to-cart' product.uid %}?quantity=" + selectedQuantity;
+  });
 </script>
 {% endblock %}
